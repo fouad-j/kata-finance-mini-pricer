@@ -9,10 +9,12 @@ const jasmine = require('gulp-jasmine');
 const babel = require('gulp-babel');
 const del = require('del');
 const path = require("path");
+const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
 
 gulp.task('default', ['test']);
 
-gulp.task('test', ['babel'], () => gulp.src(path.join(babelOutput, '**.spec.js')).pipe(jasmine()));
+gulp.task('test', ['babel'], () =>
+  gulp.src(path.join(babelOutput, '**.spec.js')).pipe(jasmine({reporter: new SpecReporter()})));
 
 gulp.task('babel', () => gulp.src(sources.scripts).pipe(babel({presets:['es2015']})).pipe(gulp.dest(babelOutput)));
 
