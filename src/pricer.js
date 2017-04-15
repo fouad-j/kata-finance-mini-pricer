@@ -1,14 +1,35 @@
 import moment from 'moment';
 
+const holidays = ['01/01', '01/05', '08/05', '14/07'];
+
 // TODO check validity of input
-let pricer = (futureDate, currentPrice, volatility) => {
+const pricer = (futureDate, currentPrice, volatility) => {
   return calculPrice(moment(), futureDate, currentPrice, volatility);
 };
 
-let calculPrice = (currentDate, futureDate, currentPrice, volatility) => {
-  return currentDate.format('DD/MM/YYYY') !== futureDate.format('DD/MM/YYYY') ?
-    calculPrice(currentDate.add(1, 'd'), futureDate, currentPrice*(1+volatility/100), volatility) :
-    currentPrice;
+const calculPrice = (currentDate, futureDate, currentPrice, volatility) => {
+  if (currentDate.format('DD/MM/YYYY') !== futureDate.format('DD/MM/YYYY')) {
+    return calculPrice(nextDay(currentDate), futureDate, currentPrice * (1 + volatility / 100), volatility);
+  }
+  else {
+    return currentPrice;
+  }
 };
 
-export default pricer;
+const nextDay = currentDate => escapeWeekend(escapeHolidays(currentDate));
+
+const escapeWeekend = currentDate => {
+  switch (currentDate.format('dddd')) {
+    case 'Friday' : return currentDate.add(3, 'd');
+    case 'Saturday' : return currentDate.add(2, 'd');
+    default: return currentDate.add(1, 'd');
+  }
+};
+
+// TODO check if immutable moment() exists
+const escapeHolidays = currentDate =>
+  holidays.includes(currentDate.add(1, 'd').format('DD/MM')) ?
+    currentDate.add(1, 'd') :
+    currentDate;
+
+export {pricer, nextDay, escapeWeekend, escapeHolidays};
